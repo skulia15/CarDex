@@ -22,6 +22,10 @@ export default function DexScreen() {
   const textColor = useThemeColor({}, 'text');
   const tintColor = useThemeColor({}, 'tint');
 
+  const isModelSpotted = useCallback((modelId: string): boolean => {
+    return dexEntries.some(entry => entry.modelId === modelId && entry.status === 'spotted');
+  }, [dexEntries]);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -63,10 +67,6 @@ export default function DexScreen() {
       setLoading(false);
     }
   };
-
-  const isModelSpotted = useCallback((modelId: string): boolean => {
-    return dexEntries.some(entry => entry.modelId === modelId && entry.status === 'spotted');
-  }, [dexEntries]);
 
   const renderModelItem = ({ item }: { item: ModelWithManufacturer }) => {
     const spotted = isModelSpotted(item.id);

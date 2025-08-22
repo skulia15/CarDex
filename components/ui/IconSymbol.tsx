@@ -1,29 +1,40 @@
 // Fallback for using MaterialIcons on Android and web.
 
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { SymbolWeight, SymbolViewProps } from 'expo-symbols';
-import { ComponentProps } from 'react';
 import { OpaqueColorValue, type StyleProp, type TextStyle } from 'react-native';
 
-type IconMapping = Record<SymbolViewProps['name'], ComponentProps<typeof MaterialIcons>['name']>;
-type IconSymbolName = keyof typeof MAPPING;
-
-/**
- * Add your SF Symbols to Material Icons mappings here.
- * - see Material Icons in the [Icons Directory](https://icons.expo.fyi).
- * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
- */
-const MAPPING = {
+// SF Symbols → Material Icons mapping used on Android/Web
+// Reference: https://icons.expo.fyi (MaterialIcons) and Apple's SF Symbols catalog
+const MAPPING: Record<string, string> = {
+  // Existing mappings
   'house.fill': 'home',
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
-} as IconMapping;
+
+  // App-specific icons
+  'chevron.left': 'chevron-left',
+  'xmark': 'close',
+  'camera.rotate': 'cameraswitch',
+  'photo.on.rectangle': 'photo-library',
+  'exclamationmark.triangle': 'warning',
+  'list.bullet.rectangle': 'list-alt',
+  viewfinder: 'center-focus-strong',
+  'trophy.fill': 'emoji-events',
+  'gearshape.fill': 'settings',
+  gear: 'settings',
+  'car.fill': 'directions-car',
+  'checkmark.circle.fill': 'check-circle',
+  circle: 'radio-button-unchecked',
+  'building.2.fill': 'apartment',
+  'camera.fill': 'photo-camera',
+  'sun.max.fill': 'wb-sunny',
+  'moon.fill': 'nightlight-round',
+};
 
 /**
- * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.
- * This ensures a consistent look across platforms, and optimal resource usage.
- * Icon `name`s are based on SF Symbols and require manual mapping to Material Icons.
+ * An icon component that uses Material Icons on Android and web, mirroring SF Symbol names.
+ * Unmapped names fall back to `help-outline` to avoid runtime crashes.
  */
 export function IconSymbol({
   name,
@@ -31,11 +42,16 @@ export function IconSymbol({
   color,
   style,
 }: {
-  name: IconSymbolName;
+  name: string;
   size?: number;
   color: string | OpaqueColorValue;
   style?: StyleProp<TextStyle>;
-  weight?: SymbolWeight;
+  weight?: 'ultralight' | 'thin' | 'light' | 'regular' | 'medium' | 'semibold' | 'bold' | 'heavy' | 'black';
 }) {
-  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
+  const mapped = MAPPING[name] ?? 'help-outline';
+  if (__DEV__ && !MAPPING[name]) {
+    // eslint-disable-next-line no-console
+    console.warn(`IconSymbol: Unmapped SF Symbol "${name}" → falling back to MaterialIcons:"${mapped}"`);
+  }
+  return <MaterialIcons color={color as any} size={size} name={mapped as any} style={style} />;
 }
